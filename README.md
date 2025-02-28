@@ -19,13 +19,13 @@
   wget https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/CUR-TF-200-ACCDEV-2-91558/10-lab-sqs/code.zip
 
   # Extract files
-  unzip code.zip -d ~/environment
+  unzip code.zip
   ```
 
 **c. Run Setup Script**  
 - Navigate to the `resources` directory:  
   ```bash
-  cd ~/environment/resources
+  cd resources
   ```
 - Make the script executable and run it:  
   ```bash
