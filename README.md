@@ -1,5 +1,3 @@
-# BAD-Project-3
-
 **Yes! Here's a highly detailed, step-by-step breakdown of the entire process using VSCode:**
 
 ---
@@ -16,16 +14,16 @@
 - In the VSCode terminal:  
   ```bash
   # Download code.zip
-  wget https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/CUR-TF-200-ACCDEV-2-91558/10-lab-sqs/code.zip
+  wget https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/CUR-TF-200-ACCDEV-2-91558/10-lab-sqs/code.zip -P /home/ec2-user/environment
 
   # Extract files
-  unzip code.zip
+  unzip code.zip -d ~/environment
   ```
 
 **c. Run Setup Script**  
 - Navigate to the `resources` directory:  
   ```bash
-  cd resources
+  cd ~/environment/resources
   ```
 - Make the script executable and run it:  
   ```bash
