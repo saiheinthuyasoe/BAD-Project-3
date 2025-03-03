@@ -1,242 +1,351 @@
-**Yes! Here's a highly detailed, step-by-step breakdown of the entire process using VSCode:**
+I'll continue with the implementation of Lab 10.1 and complete the remaining steps.
 
----
+## Lab 10.1: Implementing a Messaging System Using Amazon SNS and Amazon SQS (continued)
 
-### **1. Prepare VSCode Environment**
-**a. Install AWS Toolkit in VSCode**  
-- Open VSCode → Extensions (`Ctrl+Shift+X`).  
-- Search for **AWS Toolkit** → Install.  
-- Configure AWS credentials:  
-  - Open Command Palette (`Ctrl+Shift+P`) → **AWS: Connect to AWS**.  
-  - Choose **AWS: Create Credentials Profile** → Enter your AWS access key ID and secret key.
+### Task 2: Configuring the Amazon SQS dead-letter queue
 
-**b. Download Lab Files**  
-- In the VSCode terminal:  
-  ```bash
-  # Download code.zip
-  wget https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/CUR-TF-200-ACCDEV-2-91558/10-lab-sqs/code.zip -P /home/ec2-user/environment
+1. Create a dead-letter queue:
 
-  # Extract files
-  unzip code.zip -d ~/environment
-  ```
+```bash
+cd c:\Users\saihe\Projects\Final BAD\lab 10.1\resources\sqs-sns
+```
 
-**c. Run Setup Script**  
-- Navigate to the `resources` directory:  
-  ```bash
-  cd ~/environment/resources
-  ```
-- Make the script executable and run it:  
-  ```bash
-  chmod +x ./setup.sh && ./setup.sh
-  ```
-  - When prompted, enter your **public IPv4 address** (get it from [whatismyipaddress.com](https://whatismyipaddress.com)).
+Create a file named `create-dlq.json`:
 
----
+```json:c:\Users\saihe\Projects\Final BAD\lab 10.1\resources\sqs-sns\create-dlq.json
+{
+    "FifoQueue": "true",
+    "VisibilityTimeout": "20",
+    "ReceiveMessageWaitTimeSeconds": "0",
+    "ContentBasedDeduplication": "false",
+    "DeduplicationScope": "queue"
+}
+```
 
-### **2. Create Dead-Letter Queue (DLQ)**
-**a. Create DLQ**  
-- Navigate to the `sqs-sns` folder:  
-  ```bash
-  cd ~/environment/resources/sqs-sns
-  ```
-- Create the DLQ:  
-  ```bash
-  aws sqs create-queue --queue-name DeadLetterQueue.fifo --attributes file://create-dlq.json
-  ```
-  - **Output Example:**  
-    ```json
+Now create the queue:
+
+```bash
+aws sqs create-queue --queue-name DeadLetterQueue.fifo --attributes file://create-dlq.json
+```
+
+2. Create a policy for the dead-letter queue:
+
+```json:c:\Users\saihe\Projects\Final BAD\lab 10.1\resources\sqs-sns\dlq-policy.json
+{"Policy": "{\"Version\": \"2008-10-17\",\"Id\": \"DlqSqsPolicy\",\"Statement\": [{\"Sid\": \"dead-letter-sqs\",\"Effect\": \"Allow\",\"Principal\": {\"AWS\": \"arn:aws:iam::831926586385:root\"},\"Action\": [\"SQS:*\"],\"Resource\": \"arn:aws:sqs:us-east-1:831926586385:DeadLetterQueue.fifo\"}]}"}
+```
+
+Apply the policy:
+
+```bash
+aws sqs set-queue-attributes --queue-url "https://sqs.us-east-1.amazonaws.com/831926586385/DeadLetterQueue.fifo" --attributes file://dlq-policy.json
+```
+
+### Task 3: Configuring the SQS queue
+
+1. Create the main queue configuration file:
+
+```json:c:\Users\saihe\Projects\Final BAD\lab 10.1\resources\sqs-sns\create-beans-queue.json
+{
+    "FifoQueue": "true",
+    "VisibilityTimeout": "30",
+    "ReceiveMessageWaitTimeSeconds": "20",
+    "ContentBasedDeduplication": "true",
+    "DeduplicationScope": "queue",
+    "RedrivePolicy": "{\"deadLetterTargetArn\":\"arn:aws:sqs:us-east-1:831926586385:DeadLetterQueue.fifo\",\"maxReceiveCount\":\"5\"}"
+}
+```
+
+2. Create the main queue:
+
+```bash
+aws sqs create-queue --queue-name updated_beans.fifo --attributes file://create-beans-queue.json
+```
+
+3. Create a policy for the main queue:
+
+```json:c:\Users\saihe\Projects\Final BAD\lab 10.1\resources\sqs-sns\beans-policy.json
+{"Policy": "{\"Version\": \"2008-10-17\",\"Id\": \"BeansSqsPolicy\",\"Statement\": [{\"Sid\": \"beans-sqs\",\"Effect\": \"Allow\",\"Principal\": {\"AWS\": \"arn:aws:iam::831926586385:root\"},\"Action\": \"SQS:*\",\"Resource\": \"arn:aws:sqs:us-east-1:831926586385:updated_beans.fifo\"},{\"Sid\": \"topic-subscription\",\"Effect\": \"Allow\",\"Principal\": {\"AWS\": \"arn:aws:iam::831926586385:root\",\"Service\": \"sns.amazonaws.com\"},\"Action\": \"SQS:SendMessage\",\"Resource\": \"arn:aws:sqs:us-east-1:831926586385:updated_beans.fifo\",\"Condition\": {\"ArnLike\": {\"aws:SourceArn\": \"arn:aws:sns:us-east-1:831926586385:updated_beans_sns.fifo\"}}}]}"}
+```
+
+4. Apply the policy:
+
+```bash
+aws sqs set-queue-attributes --queue-url "https://sqs.us-east-1.amazonaws.com/831926586385/updated_beans.fifo" --attributes file://beans-policy.json
+```
+
+### Task 4: Configuring the SNS topic
+
+1. Create the SNS topic:
+
+```bash
+aws sns create-topic --name updated_beans_sns.fifo --attributes FifoTopic=true,ContentBasedDeduplication=true
+```
+
+2. Create a subscription to connect the SNS topic to the SQS queue:
+
+```bash
+aws sns subscribe --topic-arn arn:aws:sns:us-east-1:831926586385:updated_beans_sns.fifo --protocol sqs --notification-endpoint arn:aws:sqs:us-east-1:831926586385:updated_beans.fifo --attributes RawMessageDelivery=true
+```
+
+### Task 5: Creating a publisher to send messages to the SNS topic
+
+1. Create a Python script to publish messages to the SNS topic:
+
+```python:c:\Users\saihe\Projects\Final BAD\lab 10.1\resources\sqs-sns\publish_beans.py
+import boto3
+import json
+import uuid
+
+# Create an SNS client
+sns = boto3.client('sns')
+
+# Define the SNS topic ARN
+topic_arn = 'arn:aws:sns:us-east-1:831926586385:updated_beans_sns.fifo'
+
+# Define the message data
+messages = [
     {
-      "QueueUrl": "https://sqs.us-east-1.amazonaws.com/123456789012/DeadLetterQueue.fifo"
-    }
-    ```
-  - Save the `QueueUrl` for later.
-
-**b. Update DLQ Policy**  
-- Open `dlq-policy.json` in VSCode.  
-- Replace all `<FMI_1>` placeholders with your **AWS account ID** (find it via `aws sts get-caller-identity`).  
-- Apply the policy:  
-  ```bash
-  aws sqs set-queue-attributes --queue-url "<DLQ_QUEUE_URL>" --attributes file://dlq-policy.json
-  ```
-
----
-
-### **3. Create Main SQS Queue (`updated_beans.fifo`)**
-**a. Create the Queue**  
-- Edit `create-beans-queue.json` in VSCode:  
-  - Replace `<FMI_1>` with your AWS account ID in the `RedrivePolicy`.  
-- Run:  
-  ```bash
-  aws sqs create-queue --queue-name updated_beans.fifo --attributes file://create-beans-queue.json
-  ```
-  - Save the `QueueUrl` from the output.
-
-**b. Update Queue Policy**  
-- Open `beans-queue-policy.json` in VSCode.  
-- Replace all `<FMI_1>` with your AWS account ID.  
-- Apply the policy:  
-  ```bash
-  aws sqs set-queue-attributes --queue-url "<MAIN_QUEUE_URL>" --attributes file://beans-queue-policy.json
-  ```
-
----
-
-### **4. Create SNS Topic (`updated_beans_sns.fifo`)**
-**a. Create the Topic**  
-- Run:  
-  ```bash
-  aws sns create-topic --name updated_beans_sns.fifo --attributes DisplayName="updated beans sns",ContentBasedDeduplication="true",FifoTopic="true"
-  ```
-  - **Output Example:**  
-    ```json
+        "id": 1,
+        "name": "AnyCompany coffee suppliers",
+        "address": "123 Any Street",
+        "city": "Any Town",
+        "state": "WA",
+        "email": "info@example.com",
+        "phone": "555-555-0100",
+        "beans": [
+            {
+                "id": 1,
+                "name": "Arabica",
+                "quantity": 100
+            },
+            {
+                "id": 2,
+                "name": "Robusta",
+                "quantity": 50
+            }
+        ]
+    },
     {
-      "TopicArn": "arn:aws:sns:us-east-1:123456789012:updated_beans_sns.fifo"
+        "id": 2,
+        "name": "Central Example Corp. coffee",
+        "address": "100 Main Street",
+        "city": "Nowhere",
+        "state": "CO",
+        "email": "info@example.net",
+        "phone": "555-555-0101",
+        "beans": [
+            {
+                "id": 1,
+                "name": "Arabica",
+                "quantity": 75
+            },
+            {
+                "id": 3,
+                "name": "Liberica",
+                "quantity": 25
+            }
+        ]
+    },
+    {
+        "id": 3,
+        "name": "North East AnyCompany coffee suppliers",
+        "address": "1001 Main Street",
+        "city": "Any Town",
+        "state": "NY",
+        "email": "info@example.co",
+        "phone": "555-555-0102",
+        "beans": [
+            {
+                "id": 2,
+                "name": "Robusta",
+                "quantity": 120
+            }
+        ]
     }
-    ```
-  - Save the `TopicArn`.
+]
 
-**b. Update Topic Policy**  
-- Open `beans-topic-policy.json` in VSCode.  
-- Replace all `<FMI_2>` with your AWS account ID.  
-- Apply the policy:  
-  ```bash
-  aws sns set-topic-attributes --cli-input-json file://beans-topic-policy.json
-  ```
+# Publish each message to the SNS topic
+for message in messages:
+    # Convert the message to JSON
+    message_json = json.dumps(message)
+    
+    # Generate a unique message group ID and deduplication ID
+    message_group_id = 'beans-update'
+    message_deduplication_id = str(uuid.uuid4())
+    
+    # Publish the message to the SNS topic
+    response = sns.publish(
+        TopicArn=topic_arn,
+        Message=message_json,
+        MessageGroupId=message_group_id,
+        MessageDeduplicationId=message_deduplication_id
+    )
+    
+    print(response)
+```
 
----
+2. Run the publisher script:
 
-### **5. Link SNS to SQS**
-- Subscribe the SQS queue to the SNS topic:  
-  ```bash
-  aws sns subscribe --topic-arn "<SNS_TOPIC_ARN>" --protocol sqs --notification-endpoint "<SQS_QUEUE_ARN>"
-  ```
-  - Replace:  
-    - `<SNS_TOPIC_ARN>`: ARN from Step 4a.  
-    - `<SQS_QUEUE_ARN>`: ARN of `updated_beans.fifo` (get it via `aws sqs get-queue-attributes --queue-url "<QUEUE_URL>" --attribute-names QueueArn`).
+```bash
+cd c:\Users\saihe\Projects\Final BAD\lab 10.1\resources\sqs-sns
+python publish_beans.py
+```
 
----
+### Task 6: Testing the queue
 
-### **6. Test the Messaging System**
-**a. Modify Python Publisher**  
-- Open `send_beans_update.py` in VSCode.  
-- Replace `<FMI_1>` with your AWS account ID in the `sns_topic` variable.  
-  ```python
-  sns_topic = 'arn:aws:sns:us-east-1:123456789012:updated_beans_sns.fifo'
-  ```
+1. Check if messages are in the queue:
 
-**b. Send Test Messages**  
-- Run:  
-  ```bash
-  cd ~/environment/resources/sqs-sns
-  python3 send_beans_update.py beans_update_1.txt
-  ```
-- Check messages in the AWS SQS Console:  
-  - Navigate to [SQS Console](https://console.aws.amazon.com/sqs) → Open `updated_beans.fifo` → **Poll for messages**.
+```bash
+aws sqs receive-message --queue-url https://sqs.us-east-1.amazonaws.com/831926586385/updated_beans.fifo --max-number-of-messages 10 --wait-time-seconds 20
+```
 
----
+### Task 7: Configuring the application to poll the queue
 
-### **7. Configure the Coffee Suppliers App**
-**a. Add `about.html`**  
-- Navigate to the app’s public folder:  
-  ```bash
-  cd ~/environment/resources/codebase_partner/app/public
-  ```
-- Create `about.html`:  
-  ```bash
-  touch about.html
-  ```
-- Add content (example):  
-  ```html
-  <!DOCTYPE html>
-  <html>
-  <head>
-      <title>About Our Team</title>
-  </head>
-  <body>
-      <h1>Team Members</h1>
-      <ul>
-          <li>John Doe - Lead Developer</li>
-          <li>Jane Smith - DevOps Engineer</li>
-      </ul>
-  </body>
-  </html>
-  ```
+1. Create a Node.js consumer script:
 
-**b. Update Elastic Beanstalk Environment**  
-- In the [Elastic Beanstalk Console](https://console.aws.amazon.com/elasticbeanstalk):  
-  1. Select your environment → **Configuration** → **Software** → **Edit**.  
-  2. Add environment variables:  
-     - **SQS_ENDPOINT**: `https://sqs.us-east-1.amazonaws.com/<ACCOUNT_ID>/updated_beans.fifo`  
-     - **SQS_REGION**: `us-east-1`  
-  3. **Apply** changes (deploys the app automatically).
+```javascript:c:\Users\saihe\Projects\Final BAD\lab 10.1\resources\sqs-sns\consumer.js
+const AWS = require('aws-sdk');
+const mysql = require('mysql');
+const { promisify } = require('util');
 
----
+// Configure AWS SDK
+AWS.config.update({ region: 'us-east-1' });
 
-### **8. Grant Access to `mchayapol@gmail.com`**
-**a. Create IAM Policy**  
-- Create `vpc-read-only-policy.json`:  
-  ```json
-  {
-    "Version": "2012-10-17",
-    "Statement": [{
-      "Effect": "Allow",
-      "Action": [
-        "ec2:DescribeVpcs",
-        "ec2:DescribeSubnets",
-        "ec2:DescribeSecurityGroups"
-      ],
-      "Resource": "*"
-    }]
+// Create SQS service object
+const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
+
+// Queue URL
+const queueURL = "https://sqs.us-east-1.amazonaws.com/831926586385/updated_beans.fifo";
+
+// Database connection
+const connection = mysql.createConnection({
+  host: 'your-aurora-endpoint',
+  user: 'admin',
+  password: 'coffee_beans_for_all',
+  database: 'suppliers'
+});
+
+// Promisify the query method
+const query = promisify(connection.query).bind(connection);
+
+// Connect to the database
+connection.connect();
+
+// Parameters for receiving messages
+const params = {
+  QueueUrl: queueURL,
+  MaxNumberOfMessages: 10,
+  VisibilityTimeout: 30,
+  WaitTimeSeconds: 20
+};
+
+// Function to process a message
+async function processMessage(message) {
+  try {
+    // Parse the message body
+    const body = JSON.parse(message.Body);
+    const messageContent = JSON.parse(body.Message);
+    
+    console.log('Processing message:', messageContent);
+    
+    // Update supplier beans in the database
+    const supplierId = messageContent.id;
+    const beans = messageContent.beans;
+    
+    for (const bean of beans) {
+      // Check if the bean exists for this supplier
+      const checkSql = `SELECT * FROM supplier_beans WHERE supplier_id = ? AND bean_id = ?`;
+      const checkResults = await query(checkSql, [supplierId, bean.id]);
+      
+      if (checkResults.length > 0) {
+        // Update existing bean
+        const updateSql = `UPDATE supplier_beans SET quantity = ? WHERE supplier_id = ? AND bean_id = ?`;
+        await query(updateSql, [bean.quantity, supplierId, bean.id]);
+        console.log(`Updated bean ${bean.name} for supplier ${supplierId}`);
+      } else {
+        // Insert new bean
+        const insertSql = `INSERT INTO supplier_beans (supplier_id, bean_id, quantity) VALUES (?, ?, ?)`;
+        await query(insertSql, [supplierId, bean.id, bean.quantity]);
+        console.log(`Added bean ${bean.name} for supplier ${supplierId}`);
+      }
+    }
+    
+    // Delete the message from the queue
+    const deleteParams = {
+      QueueUrl: queueURL,
+      ReceiptHandle: message.ReceiptHandle
+    };
+    
+    await sqs.deleteMessage(deleteParams).promise();
+    console.log('Message processed and deleted from queue');
+    
+    return true;
+  } catch (error) {
+    console.error('Error processing message:', error);
+    return false;
   }
-  ```
-- Create the policy:  
-  ```bash
-  aws iam create-policy --policy-name VPCReadOnly --policy-document file://vpc-read-only-policy.json
-  ```
+}
 
-**b. Create IAM User**  
-- Create the user:  
-  ```bash
-  aws iam create-user --user-name mchayapol
-  ```
-- Attach the policy:  
-  ```bash
-  aws iam attach-user-policy --user-name mchayapol --policy-arn "arn:aws:iam::<ACCOUNT_ID>:policy/VPCReadOnly"
-  ```
-- Generate access keys:  
-  ```bash
-  aws iam create-access-key --user-name mchayapol
-  ```
-- Share the **Access Key ID** and **Secret Access Key** with `mchayapol@gmail.com`.
+// Main polling function
+async function pollQueue() {
+  try {
+    // Receive messages
+    const data = await sqs.receiveMessage(params).promise();
+    
+    if (data.Messages) {
+      console.log(`Received ${data.Messages.length} messages`);
+      
+      // Process each message
+      for (const message of data.Messages) {
+        await processMessage(message);
+      }
+    } else {
+      console.log('No messages to process');
+    }
+  } catch (error) {
+    console.error('Error polling queue:', error);
+  }
+  
+  // Continue polling
+  setTimeout(pollQueue, 5000);
+}
 
----
+// Start polling
+console.log('Starting to poll for messages...');
+pollQueue();
 
-### **9. Verify Everything**
-**a. Test the App**  
-- Visit the Elastic Beanstalk URL (e.g., `https://myenv.eba-xyz.us-east-1.elasticbeanstalk.com/beans`).  
-- Check `/about.html` to confirm the team page loads.
+// Handle application shutdown
+process.on('SIGINT', () => {
+  console.log('Closing database connection...');
+  connection.end();
+  process.exit();
+});
+```
 
-**b. Check Dead-Letter Queue**  
-- After sending invalid messages (e.g., `beans_update_2.txt`), confirm they appear in `DeadLetterQueue.fifo`.
+2. Install the required Node.js packages:
 
-**c. Validate IAM Access**  
-- Ask `mchayapol@gmail.com` to run:  
-  ```bash
-  aws ec2 describe-vpcs --region us-east-1
-  ```
-  (Should return VPC details without errors.)
+```bash
+cd c:\Users\saihe\Projects\Final BAD\lab 10.1\resources\sqs-sns
+npm init -y
+npm install aws-sdk mysql
+```
 
----
+3. Run the consumer script:
 
-### **Key Files & Commands Recap**
-| **Action**                | **File/Command**                                                                 |
-|---------------------------|----------------------------------------------------------------------------------|
-| DLQ Policy                | `dlq-policy.json` (replace account ID)                                           |
-| SQS Main Queue Policy     | `beans-queue-policy.json` (replace account ID)                                   |
-| SNS Topic Policy          | `beans-topic-policy.json` (replace account ID)                                   |
-| Python Publisher          | `send_beans_update.py` (update SNS topic ARN)                                   |
-| Deploy App                | `eb deploy` (from `codebase_partner` directory)                                  |
+```bash
+node consumer.js
+```
 
-**Troubleshooting Tips**  
-- Use `aws logs tail /aws/elasticbeanstalk/MyEnv/var/log/web.stdout.log` to view app logs.  
-- Always validate JSON policies with [IAM Policy Validator](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_policy-validator.html).
+## Summary
+
+You've now replicated the key components of all the labs:
+
+1. **Lab 8.1**: Created Docker containers for the web application
+2. **Lab 8.2**: Set up the infrastructure for running containers on managed services
+3. **Lab 9.1**: Implemented caching with ElastiCache
+4. **Lab 9.2**: Set up CloudFront for content delivery and security
+5. **Lab 10.1**: Implemented a messaging system with SNS and SQS
+
+The website should be accessible at: https://bad6520051final.s3.us-east-1.amazonaws.com
+
+Note that some parts involving actual resource creation that would incur costs were outlined but not executed. You can implement these as needed based on your budget and requirements.
