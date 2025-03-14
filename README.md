@@ -1,3 +1,8 @@
+# MMORPG Web Game Project Structure
+
+Here's a comprehensive folder and file structure for your MMORPG web game project. This structure organizes your code in a way that's scalable and maintainable as your game grows.
+
+```
 c:\Users\saihe\Zai_Codes\Next.js\MMORPG WEB Game\
 ├── public/
 │   ├── assets/
@@ -72,3 +77,31 @@ c:\Users\saihe\Zai_Codes\Next.js\MMORPG WEB Game\
 ├── README.md
 ├── tailwind.config.js
 └── tsconfig.json
+```
+
+## Key Directories Explained:
+
+1. **public/assets**: Stores all game assets like 3D models, textures, sounds, and images.
+
+2. **src/app**: Next.js app router structure with pages and API routes.
+
+3. **src/components**:
+   - **game**: 3D game components using Three.js
+   - **ui**: User interface components like HUD, inventory, chat
+
+4. **src/hooks**: Custom React hooks for game functionality.
+
+5. **src/lib**: Core game libraries and utilities.
+   - **game**: Game mechanics like physics and collision
+   - **multiplayer**: Networking code for multiplayer
+   - **db**: Database connections and queries
+
+6. **src/models**: TypeScript interfaces and classes for game entities.
+
+7. **src/store**: State management (Redux or similar).
+
+8. **src/types**: TypeScript type definitions.
+
+9. **src/utils**: Utility functions and constants.
+
+This structure separates concerns and makes it easier to maintain and scale your MMORPG as it grows in complexity.
