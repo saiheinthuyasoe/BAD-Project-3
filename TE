@@ -1,39 +1,36 @@
-c:\Users\saihe\Zai_Codes\Next.js\Troll & elves\
-├── public\
-│   ├── assets\
-│   │   ├── models\         # 3D models
-│   │   ├── textures\       # Textures for models and environment
-│   │   └── sounds\         # Game sounds and music
-│   └── favicon.ico
-├── src\
-│   ├── app\
-│   │   ├── layout.js       # Root layout
-│   │   └── page.js         # Main page
-│   ├── components\
-│   │   ├── GameScene.jsx   # Main Three.js scene
-│   │   ├── ui\             # UI components
-│   │   │   ├── GameMenu.jsx
-│   │   │   ├── HUD.jsx     # Heads-up display
-│   │   │   └── Lobby.jsx   # Multiplayer lobby
-│   │   └── game\           # Game-specific components
-│   │       ├── Troll.jsx   # Troll character
-│   │       ├── Elf.jsx     # Elf character
-│   │       ├── Terrain.jsx # Game environment
-│   │       └── Controls.jsx # Player controls
-│   ├── hooks\              # Custom React hooks
-│   │   ├── useGameState.js
-│   │   └── useControls.js
-│   ├── lib\                # Utility functions and game logic
-│   │   ├── game-engine.js
-│   │   ├── physics.js
-│   │   └── multiplayer.js
-│   └── styles\             # CSS and styling
-│       └── globals.css
-├── .eslintrc.json
-├── .gitignore
-├── jsconfig.json
-├── next.config.js
-├── package.json
-├── postcss.config.js
-├── README.md
-└── tailwind.config.js
+c:\Users\saihe\Zai_Codes\Next.js\troll-and-elves\
+├── src/
+│   ├── app/
+│   │   ├── page.tsx                 # Main entry point
+│   │   ├── layout.tsx               # Root layout
+│   │   ├── globals.css              # Global styles
+│   ├── components/
+│   │   ├── game/
+│   │   │   ├── GameCanvas.tsx       # Main Three.js canvas
+│   │   │   ├── GameUI.tsx           # Game UI overlay
+│   │   │   ├── GameController.tsx   # Game state and logic
+│   │   ├── ui/
+│   │   │   ├── Button.tsx           # Reusable UI components
+│   │   │   ├── Menu.tsx             # Game menu
+│   │   │   ├── HUD.tsx              # Heads-up display
+│   ├── models/
+│   │   ├── entities/
+│   │   │   ├── Character.ts         # Base character class
+│   │   │   ├── Troll.ts             # Troll character
+│   │   │   ├── Elf.ts               # Elf character
+│   │   ├── world/
+│   │   │   ├── Terrain.ts           # Game terrain
+│   │   │   ├── Structure.ts         # Base structure class
+│   │   │   ├── ElfStructure.ts      # Elf structures
+│   ├── hooks/
+│   │   ├── useGameState.ts          # Custom hook for game state
+│   │   ├── useControls.ts           # Custom hook for controls
+│   ├── utils/
+│   │   ├── physics.ts               # Physics calculations
+│   │   ├── pathfinding.ts           # Pathfinding algorithms
+│   ├── types/
+│   │   ├── game.ts                  # Type definitions
+├── public/
+│   ├── models/                      # 3D models
+│   ├── textures/                    # Textures
+│   ├── sounds/                      # Sound effects
