@@ -1,0 +1,39 @@
+c:\Users\saihe\Zai_Codes\Next.js\Troll & elves\
+├── public\
+│   ├── assets\
+│   │   ├── models\         # 3D models
+│   │   ├── textures\       # Textures for models and environment
+│   │   └── sounds\         # Game sounds and music
+│   └── favicon.ico
+├── src\
+│   ├── app\
+│   │   ├── layout.js       # Root layout
+│   │   └── page.js         # Main page
+│   ├── components\
+│   │   ├── GameScene.jsx   # Main Three.js scene
+│   │   ├── ui\             # UI components
+│   │   │   ├── GameMenu.jsx
+│   │   │   ├── HUD.jsx     # Heads-up display
+│   │   │   └── Lobby.jsx   # Multiplayer lobby
+│   │   └── game\           # Game-specific components
+│   │       ├── Troll.jsx   # Troll character
+│   │       ├── Elf.jsx     # Elf character
+│   │       ├── Terrain.jsx # Game environment
+│   │       └── Controls.jsx # Player controls
+│   ├── hooks\              # Custom React hooks
+│   │   ├── useGameState.js
+│   │   └── useControls.js
+│   ├── lib\                # Utility functions and game logic
+│   │   ├── game-engine.js
+│   │   ├── physics.js
+│   │   └── multiplayer.js
+│   └── styles\             # CSS and styling
+│       └── globals.css
+├── .eslintrc.json
+├── .gitignore
+├── jsconfig.json
+├── next.config.js
+├── package.json
+├── postcss.config.js
+├── README.md
+└── tailwind.config.js
