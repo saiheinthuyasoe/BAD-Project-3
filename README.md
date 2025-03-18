@@ -1,210 +1,244 @@
-# Clothing Store Application File and Folder Structure
+# NoManWeb Project Structure
 
-Here's a recommended file and folder structure for your clothing store application with Spring Boot backend and Next.js frontend:
+I'll create a comprehensive file and folder structure for your book reader web application with both frontend and backend components. This structure follows best practices for Next.js and Spring Boot applications.
 
 ## Backend Structure (Spring Boot)
 
 ```
-c:\Users\saihe\Zai_Codes\Next.js\clothing-store\clothing-store\
+nomanweb_reader_backend/
 ├── src/
 │   ├── main/
 │   │   ├── java/
 │   │   │   └── com/
 │   │   │       └── app/
-│   │   │           └── clothing_store/
-│   │   │               ├── config/
+│   │   │           └── nomanweb_reader_backend/
+│   │   │               ├── config/                  # Configuration classes
 │   │   │               │   ├── SecurityConfig.java
+│   │   │               │   ├── FirebaseConfig.java
 │   │   │               │   └── WebConfig.java
-│   │   │               ├── controller/
+│   │   │               ├── controller/              # REST API controllers
 │   │   │               │   ├── AuthController.java
-│   │   │               │   ├── CategoryController.java
-│   │   │               │   ├── OrderController.java
-│   │   │               │   ├── ProductController.java
-│   │   │               │   └── UserController.java
-│   │   │               ├── dto/
+│   │   │               │   ├── BookController.java
+│   │   │               │   ├── ChapterController.java
+│   │   │               │   ├── UserController.java
+│   │   │               │   ├── CommentController.java
+│   │   │               │   ├── AdminController.java
+│   │   │               │   └── SubscriptionController.java
+│   │   │               ├── dto/                     # Data Transfer Objects
 │   │   │               │   ├── request/
-│   │   │               │   │   ├── LoginRequest.java
-│   │   │               │   │   ├── RegisterRequest.java
-│   │   │               │   │   ├── ProductRequest.java
-│   │   │               │   │   └── OrderRequest.java
 │   │   │               │   └── response/
-│   │   │               │       ├── AuthResponse.java
-│   │   │               │       ├── ProductResponse.java
-│   │   │               │       └── ApiResponse.java
-│   │   │               ├── exception/
+│   │   │               ├── exception/               # Custom exceptions
 │   │   │               │   ├── GlobalExceptionHandler.java
-│   │   │               │   ├── ResourceNotFoundException.java
-│   │   │               │   └── BadRequestException.java
-│   │   │               ├── model/
+│   │   │               │   └── ResourceNotFoundException.java
+│   │   │               ├── model/                   # Entity classes
 │   │   │               │   ├── User.java
-│   │   │               │   ├── Address.java
-│   │   │               │   ├── Product.java
-│   │   │               │   ├── Category.java
-│   │   │               │   ├── ProductVariant.java
-│   │   │               │   ├── ProductImage.java
-│   │   │               │   ├── Order.java
-│   │   │               │   └── OrderItem.java
-│   │   │               ├── repository/
+│   │   │               │   ├── Role.java
+│   │   │               │   ├── Book.java
+│   │   │               │   ├── Chapter.java
+│   │   │               │   ├── Comment.java
+│   │   │               │   ├── Subscription.java
+│   │   │               │   ├── ReadingProgress.java
+│   │   │               │   └── Favorite.java
+│   │   │               ├── repository/              # JPA repositories
 │   │   │               │   ├── UserRepository.java
-│   │   │               │   ├── AddressRepository.java
-│   │   │               │   ├── ProductRepository.java
-│   │   │               │   ├── CategoryRepository.java
-│   │   │               │   ├── ProductVariantRepository.java
-│   │   │               │   ├── ProductImageRepository.java
-│   │   │               │   ├── OrderRepository.java
-│   │   │               │   └── OrderItemRepository.java
-│   │   │               ├── service/
-│   │   │               │   ├── AuthService.java
-│   │   │               │   ├── UserService.java
-│   │   │               │   ├── ProductService.java
-│   │   │               │   ├── CategoryService.java
-│   │   │               │   ├── OrderService.java
-│   │   │               │   └── FileStorageService.java
-│   │   │               ├── security/
+│   │   │               │   ├── BookRepository.java
+│   │   │               │   ├── ChapterRepository.java
+│   │   │               │   ├── CommentRepository.java
+│   │   │               │   ├── SubscriptionRepository.java
+│   │   │               │   ├── ReadingProgressRepository.java
+│   │   │               │   └── FavoriteRepository.java
+│   │   │               ├── security/                # Security related classes
 │   │   │               │   ├── JwtTokenProvider.java
 │   │   │               │   ├── JwtAuthenticationFilter.java
 │   │   │               │   └── UserDetailsServiceImpl.java
-│   │   │               └── ClothingStoreApplication.java
+│   │   │               ├── service/                 # Business logic
+│   │   │               │   ├── AuthService.java
+│   │   │               │   ├── BookService.java
+│   │   │               │   ├── ChapterService.java
+│   │   │               │   ├── UserService.java
+│   │   │               │   ├── CommentService.java
+│   │   │               │   ├── StorageService.java
+│   │   │               │   ├── SubscriptionService.java
+│   │   │               │   └── ReadingProgressService.java
+│   │   │               ├── util/                    # Utility classes
+│   │   │               │   └── AppConstants.java
+│   │   │               └── NomanwebReaderBackendApplication.java
 │   │   └── resources/
-│   │       ├── application.properties
-│   │       ├── application-dev.properties
-│   │       └── application-prod.properties
-│   └── test/
+│   │       ├── application.properties               # Main configuration
+│   │       ├── application-dev.properties           # Development configuration
+│   │       └── application-prod.properties          # Production configuration
+│   └── test/                                        # Test classes
 │       └── java/
 │           └── com/
 │               └── app/
-│                   └── clothing_store/
+│                   └── nomanweb_reader_backend/
 │                       ├── controller/
 │                       ├── service/
-│                       └── ClothingStoreApplicationTests.java
-└── build.gradle
+│                       └── repository/
+└── pom.xml                                          # Maven dependencies
 ```
 
 ## Frontend Structure (Next.js)
 
 ```
-c:\Users\saihe\Zai_Codes\Next.js\clothing-store\clothing-store-frontend\
-├── public/
-│   ├── images/
-│   │   ├── logo.svg
-│   │   └── banners/
-│   └── favicon.ico
+nomanweb_reader_frontend/
+├── public/                                          # Static assets
+│   ├── favicon.ico
+│   ├── logo.svg
+│   └── images/
 ├── src/
-│   ├── app/
-│   │   ├── (auth)/
+│   ├── app/                                         # App Router pages
+│   │   ├── (auth)/                                  # Auth route group
 │   │   │   ├── login/
 │   │   │   │   └── page.tsx
-│   │   │   └── register/
+│   │   │   ├── register/
+│   │   │   │   └── page.tsx
+│   │   │   └── forgot-password/
 │   │   │       └── page.tsx
-│   │   ├── (shop)/
-│   │   │   ├── products/
-│   │   │   │   ├── [id]/
+│   │   ├── (dashboard)/                             # Dashboard route group
+│   │   │   ├── admin/                               # Admin pages
+│   │   │   │   ├── books/
+│   │   │   │   │   ├── page.tsx
+│   │   │   │   │   └── [id]/
+│   │   │   │   │       └── page.tsx
+│   │   │   │   ├── users/
+│   │   │   │   │   ├── page.tsx
+│   │   │   │   │   └── [id]/
+│   │   │   │   │       └── page.tsx
+│   │   │   │   ├── reports/
 │   │   │   │   │   └── page.tsx
-│   │   │   │   └── page.tsx
-│   │   │   ├── categories/
-│   │   │   │   ├── [id]/
-│   │   │   │   │   └── page.tsx
-│   │   │   │   └── page.tsx
-│   │   │   ├── cart/
-│   │   │   │   └── page.tsx
-│   │   │   └── checkout/
-│   │   │       └── page.tsx
-│   │   ├── (user)/
+│   │   │   │   └── layout.tsx
 │   │   │   ├── profile/
 │   │   │   │   └── page.tsx
-│   │   │   ├── orders/
-│   │   │   │   ├── [id]/
-│   │   │   │   │   └── page.tsx
+│   │   │   ├── favorites/
 │   │   │   │   └── page.tsx
-│   │   │   └── addresses/
-│   │   │       └── page.tsx
-│   │   ├── (admin)/
-│   │   │   ├── dashboard/
+│   │   │   ├── reading-history/
 │   │   │   │   └── page.tsx
-│   │   │   ├── products/
-│   │   │   │   ├── create/
-│   │   │   │   │   └── page.tsx
-│   │   │   │   ├── [id]/
-│   │   │   │   │   └── page.tsx
+│   │   │   ├── subscription/
 │   │   │   │   └── page.tsx
-│   │   │   ├── categories/
-│   │   │   │   └── page.tsx
-│   │   │   └── orders/
-│   │   │       └── page.tsx
-│   │   ├── layout.tsx
-│   │   ├── page.tsx
-│   │   └── globals.css
-│   ├── components/
-│   │   ├── ui/
+│   │   │   └── layout.tsx
+│   │   ├── books/                                   # Book pages
+│   │   │   ├── page.tsx                             # Book listing
+│   │   │   ├── [bookId]/                            # Book details
+│   │   │   │   ├── page.tsx
+│   │   │   │   └── chapter/
+│   │   │   │       └── [chapterId]/
+│   │   │   │           └── page.tsx                 # Chapter reader
+│   │   │   └── upload/
+│   │   │       └── page.tsx                         # Book upload (VIP)
+│   │   ├── api/                                     # API routes
+│   │   │   └── auth/
+│   │   │       └── [...nextauth]/
+│   │   │           └── route.ts
+│   │   ├── layout.tsx                               # Root layout
+│   │   ├── page.tsx                                 # Home page
+│   │   └── globals.css                              # Global styles
+│   ├── components/                                  # Reusable components
+│   │   ├── ui/                                      # UI components
 │   │   │   ├── Button.tsx
-│   │   │   ├── Input.tsx
 │   │   │   ├── Card.tsx
-│   │   │   ├── Modal.tsx
-│   │   │   └── Pagination.tsx
-│   │   ├── layout/
+│   │   │   ├── Input.tsx
+│   │   │   └── Modal.tsx
+│   │   ├── layout/                                  # Layout components
 │   │   │   ├── Header.tsx
 │   │   │   ├── Footer.tsx
-│   │   │   ├── Navbar.tsx
-│   │   │   └── Sidebar.tsx
-│   │   ├── product/
-│   │   │   ├── ProductCard.tsx
-│   │   │   ├── ProductList.tsx
-│   │   │   ├── ProductDetail.tsx
-│   │   │   └── ProductFilter.tsx
-│   │   ├── cart/
-│   │   │   ├── CartItem.tsx
-│   │   │   └── CartSummary.tsx
-│   │   ├── checkout/
-│   │   │   ├── CheckoutForm.tsx
-│   │   │   └── PaymentForm.tsx
-│   │   └── auth/
-│   │       ├── LoginForm.tsx
-│   │       └── RegisterForm.tsx
-│   ├── hooks/
+│   │   │   ├── Sidebar.tsx
+│   │   │   └── Navigation.tsx
+│   │   ├── books/                                   # Book components
+│   │   │   ├── BookCard.tsx
+│   │   │   ├── BookGrid.tsx
+│   │   │   ├── ChapterList.tsx
+│   │   │   └── Reader.tsx
+│   │   ├── auth/                                    # Auth components
+│   │   │   ├── LoginForm.tsx
+│   │   │   └── RegisterForm.tsx
+│   │   └── admin/                                   # Admin components
+│   │       ├── BookManager.tsx
+│   │       └── UserManager.tsx
+│   ├── lib/                                         # Utility functions
+│   │   ├── api.ts                                   # API client
+│   │   ├── auth.ts                                  # Auth utilities
+│   │   ├── firebase.ts                              # Firebase config
+│   │   └── utils.ts                                 # General utilities
+│   ├── hooks/                                       # Custom React hooks
 │   │   ├── useAuth.ts
-│   │   ├── useCart.ts
-│   │   ├── useProducts.ts
-│   │   └── useOrders.ts
-│   ├── services/
-│   │   ├── api.ts
-│   │   ├── authService.ts
-│   │   ├── productService.ts
-│   │   ├── categoryService.ts
-│   │   └── orderService.ts
-│   ├── store/
-│   │   ├── slices/
-│   │   │   ├── authSlice.ts
-│   │   │   ├── cartSlice.ts
-│   │   │   └── productSlice.ts
-│   │   └── index.ts
-│   ├── types/
-│   │   └── index.ts
-│   ├── utils/
-│   │   ├── formatters.ts
-│   │   ├── validators.ts
-│   │   └── helpers.ts
-│   └── styles/
-│       └── components.css
-├── next.config.ts
-├── tailwind.config.ts
-├── tsconfig.json
-└── package.json
+│   │   ├── useBooks.ts
+│   │   └── useSubscription.ts
+│   ├── types/                                       # TypeScript types
+│   │   ├── book.ts
+│   │   ├── user.ts
+│   │   └── api.ts
+│   ├── context/                                     # React context
+│   │   ├── AuthContext.tsx
+│   │   └── ThemeContext.tsx
+│   └── styles/                                      # Component styles
+│       └── reader.module.css
+├── .env.local                                       # Environment variables
+├── .env.example                                     # Example env file
+├── next.config.ts                                   # Next.js configuration
+├── tailwind.config.js                               # Tailwind configuration
+├── tsconfig.json                                    # TypeScript configuration
+└── package.json                                     # NPM dependencies
 ```
 
-This structure follows best practices for both Spring Boot and Next.js applications:
+## Configuration Files
 
-1. **Backend (Spring Boot)**:
-   - Organized by feature with clear separation of concerns (controllers, services, repositories)
-   - Proper DTO handling for request/response objects
-   - Centralized exception handling
-   - Security configuration
+### Backend Configuration (application.properties)
 
-2. **Frontend (Next.js)**:
-   - Uses App Router with route groups (in parentheses) for organization
-   - Component-based architecture with reusable UI components
-   - Custom hooks for shared logic
-   - Services for API communication
-   - State management with Redux (store folder)
-   - Type definitions for TypeScript
+```properties:c:\Users\saihe\Zai_Codes\Java Spring Boot\Projects\NoManWeb\nomanweb_reader_backend\src\main\resources\application.properties
+# Server configuration
+spring.application.name=nomanweb_reader_backend
+server.port=8080
 
-This structure will give you a solid foundation to build your clothing store application while maintaining good code organization and scalability.
+# Database configuration
+spring.datasource.url=jdbc:postgresql://localhost:5432/nomanweb
+spring.datasource.username=postgres
+spring.datasource.password=password
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.show-sql=true
+
+# JWT Configuration
+jwt.secret=yourSecretKey
+jwt.expiration=86400000
+
+# File upload limits
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+
+# CORS configuration
+cors.allowed-origins=http://localhost:3000
+
+# Firebase configuration
+firebase.storage.bucket=your-firebase-bucket.appspot.com
+firebase.config.path=firebase-config.json
+```
+
+### Frontend Configuration (.env.example)
+
+```plaintext:c:\Users\saihe\Zai_Codes\Java Spring Boot\Projects\NoManWeb\nomanweb_reader_frontend\.env.example
+# API URL
+NEXT_PUBLIC_API_URL=http://localhost:8080/api
+
+# Firebase Config
+NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-auth-domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-storage-bucket
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
+NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
+
+# Authentication
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-nextauth-secret
+
+# Stripe
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
+STRIPE_SECRET_KEY=your-stripe-secret-key
+STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
+
+# Feature flags
+NEXT_PUBLIC_ENABLE_VIP_FEATURES=true
+```
+
+This structure provides a solid foundation for your book reader web application. It follows best practices for both Spring Boot and Next.js applications, with clear separation of concerns and modular organization. You can start implementing the core features based on this structure and expand as needed.
